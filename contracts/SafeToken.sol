@@ -36,6 +36,14 @@ contract SafeToken is StandardToken {
     msg.sender.transfer(amount_to_sell * purchase_price);
   }
 
+  function claim_revenue() {
+    require (eth_balance[msg.sender] > 0);
+    outstanding_eth -= eth_balance[msg.sender];
+    uint to_send = eth_balance[msg.sender];
+    eth_balance[msg.sender] = 0;
+    msg.sender.transfer(to_send);
+  }
+
   /* ADMINISTRATOR ONLY BEYOND THIS POINT :~) */
 
   function move_ceiling(uint new_sale_price) only_administrator() {
@@ -54,13 +62,5 @@ contract SafeToken is StandardToken {
     outstanding_eth = outstanding_eth - eth_balance[beneficiary] + amount;
     require ((((this.balance - outstanding_eth) / purchase_price) - totalSupply) > 0);
     eth_balance[beneficiary] = amount;
-  }
-
-  function claim_revenue() {
-    require (eth_balance[msg.sender] > 0);
-    outstanding_eth -= eth_balance[msg.sender];
-    uint to_send = eth_balance[msg.sender];
-    eth_balance[msg.sender] = 0;
-    msg.sender.transfer(to_send);
   }
 }
